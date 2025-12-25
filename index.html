@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grammar Mastery Engine v8</title>
+    <title>Grammar Mastery Engine</title>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <style>
         /* --- DESIGN BRIEF VARIABLES --- */
         :root {
@@ -43,7 +45,7 @@
         .topic-card:hover { transform: translateY(-5px); border-color: var(--primary-500); }
         .topic-card h3 { font-size: 22px; color: var(--primary-700); margin-bottom: 20px; }
 
-        /* Form Elements */
+        /* Input Styles */
         .input-group { margin-bottom: 24px; }
         label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; }
         input[type="text"] { 
@@ -53,7 +55,7 @@
         }
         input[type="text"]:focus { outline: none; border-color: var(--secondary-500); }
         
-        /* MCQ Buttons */
+        /* MCQ Design */
         .mcq-option { 
             width: 100%; background: var(--surface-alt); padding: 22px; 
             border-radius: 14px; border: 2px solid transparent; text-align: left; 
@@ -63,7 +65,7 @@
         .mcq-option:hover { background: var(--bg); border-color: var(--primary-300); }
         .mcq-option.selected { border-color: var(--secondary-500); background: rgba(43, 182, 180, 0.08); color: var(--secondary-700); }
 
-        /* Action Area Proximity */
+        /* Action Area */
         .action-area {
             margin-top: 20px; padding-top: 30px; border-top: 1px solid var(--border);
             display: flex; align-items: center; justify-content: space-between;
@@ -74,7 +76,6 @@
         .btn-primary:hover { filter: brightness(92%); }
         .btn-outline { background: transparent; border: 2px solid var(--primary-300); color: var(--primary-700); }
         .btn-danger { background: var(--error); color: white; }
-        .btn-danger:hover { filter: brightness(90%); }
 
         .feedback-text { font-size: 18px; font-weight: 700; flex: 1; }
         .correct { color: var(--success); }
@@ -97,23 +98,23 @@
 
     <div class="container">
         <div id="view-landing">
-            <h1 style="font-size: 32px; margin-bottom: 12px;">Grammar Hub 📚</h1>
-            <p style="color: var(--text-muted); font-size: 18px; margin-bottom: 40px;">Choose a unit to study or take a graded test.</p>
+            <h1 style="font-size: 32px; margin-bottom: 12px;">English Grammar Practice 📚</h1>
+            <p style="color: var(--text-muted); font-size: 18px; margin-bottom: 40px;">Choose a unit to study. Graded test results are saved for your teacher.</p>
             <div class="grid" id="topic-grid"></div>
         </div>
 
         <div id="view-login" class="hidden">
             <div class="card" style="max-width: 500px; margin: 0 auto;">
-                <h2 style="margin-bottom: 24px;">Grades Test Mode</h2>
+                <h2 style="margin-bottom: 24px;">Enter Graded Session</h2>
                 <div class="input-group">
-                    <label>Full Name</label>
-                    <input type="text" id="student-nick" placeholder="e.g. John Doe">
+                    <label>Your Full Name</label>
+                    <input type="text" id="student-nick" placeholder="e.g. Maria Kovács">
                 </div>
                 <div class="input-group">
                     <label>Class / Group</label>
-                    <input type="text" id="student-class" placeholder="e.g. 10.B">
+                    <input type="text" id="student-class" placeholder="e.g. 11.A">
                 </div>
-                <button class="btn-primary" style="width: 100%; font-size: 18px;" onclick="launchTest()">Start Graded Test</button>
+                <button class="btn-primary" style="width: 100%; font-size: 18px;" onclick="launchTest()">Begin Test</button>
             </div>
         </div>
 
@@ -134,175 +135,197 @@
 
         <div id="view-results" class="hidden">
             <div class="card" style="text-align: center; padding: 60px;">
-                <h1 style="color: var(--secondary-500); font-size: 40px;">Finished!</h1>
+                <h1 style="color: var(--secondary-500); font-size: 40px;">Session Finished!</h1>
                 <p id="result-summary" style="font-size: 32px; font-weight: 800; margin: 30px 0; color: var(--primary-700);"></p>
-                <button class="btn-primary" style="padding: 18px 36px;" onclick="showLanding()">Back to Menu</button>
+                <button class="btn-primary" style="padding: 18px 36px;" onclick="showLanding()">Back to Main Menu</button>
             </div>
         </div>
 
         <div id="view-admin" class="hidden">
             <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h2>Teacher Dashboard</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h2>Results Dashboard</h2>
                     <div style="display: flex; gap: 10px;">
                         <button class="btn-outline" onclick="exportCSV()"><i data-lucide="download" style="width:18px;"></i> Export CSV</button>
                         <button class="btn-danger" onclick="purgeData()"><i data-lucide="trash-2" style="width:18px;"></i> Purge Data</button>
                     </div>
                 </div>
-                <table>
-                    <thead><tr style="color: var(--text-muted)"><th>Class</th><th>Student</th><th>Score</th><th>Date</th></tr></thead>
-                    <tbody id="admin-table-body"></tbody>
-                </table>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead><tr style="color: var(--text-muted)"><th>Class</th><th>Student</th><th>Score</th><th>Date</th></tr></thead>
+                        <tbody id="admin-table-body"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
-<script>
-    const ADMIN_KEY = "QXJzZW5hbDIy"; // Arsenal22
+    <script src="data.js"></script>
 
-    const MASTER_BANK = [
-        { topic: "Past Simple - Regular", type: "mcq", q: "They ___ the house on Saturday.", options: ["clean", "cleaned", "clened"], a: "cleaned", pts: 1 },
-        { topic: "Past Simple - Regular", type: "gap-fill", q: "We [watch] ___ a great movie last night.", a: "watched", pts: 1 },
-        { topic: "Past Simple - Regular", type: "transformation", q: "Negative: 'She played tennis.'", a: "She didn't play tennis", pts: 2 },
-        { topic: "Past Simple - Regular", type: "translation", q: "Translate: 'Tegnap főztem.'", a: "I cooked yesterday", pts: 2 }
-    ];
+    <script>
+        // Password "Arsenal22" safely stored
+        const ADMIN_KEY = "QXJzZW5hbDIy"; 
 
-    let state = { mode: 'practice', topic: '', questions: [], index: 0, score: 0, nick: '', class: '', selectedMCQ: null };
+        let state = {
+            mode: 'practice',
+            questions: [],
+            index: 0,
+            score: 0,
+            nick: '',
+            class: '',
+            selectedMCQ: null
+        };
 
-    function init() {
-        lucide.createIcons();
-        const grid = document.getElementById('topic-grid');
-        const topics = [...new Set(MASTER_BANK.map(i => i.topic))];
-        grid.innerHTML = topics.map(t => `
-            <div class="topic-card">
-                <h3>${t}</h3>
-                <div style="display: flex; gap: 12px;">
-                    <button class="btn-outline" style="flex:1" onclick="startSession('${t}', 'practice')">Practice</button>
-                    <button class="btn-primary" style="flex:1" onclick="prepTest('${t}')">Graded Test</button>
+        function init() {
+            lucide.createIcons();
+            const grid = document.getElementById('topic-grid');
+            
+            // Check if data.js is loaded
+            if (typeof GRAMMAR_UNITS === 'undefined') {
+                grid.innerHTML = "<p style='color:red'>Error: data.js not found. Make sure it is in the same folder as index.html.</p>";
+                return;
+            }
+
+            grid.innerHTML = GRAMMAR_UNITS.map(unit => `
+                <div class="topic-card">
+                    <h3>${unit.title}</h3>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-outline" style="flex:1" onclick="loadAndStart('${unit.file}', 'practice')">Practice</button>
+                        <button class="btn-primary" style="flex:1" onclick="loadAndStart('${unit.file}', 'test')">Test</button>
+                    </div>
                 </div>
-            </div>
-        `).join('');
-    }
-
-    function prepTest(t) { state.topic = t; showView('view-login'); }
-
-    function launchTest() {
-        state.nick = document.getElementById('student-nick').value.trim();
-        state.class = document.getElementById('student-class').value.trim();
-        if(!state.nick || !state.class) return alert("Please fill in both Name and Class.");
-        startSession(state.topic, 'test');
-    }
-
-    function startSession(topic, mode) {
-        state.mode = mode;
-        state.questions = shuffle([...MASTER_BANK.filter(i => i.topic === topic)]);
-        state.index = 0; state.score = 0;
-        showView('view-engine');
-        renderQuestion();
-    }
-
-    function renderQuestion() {
-        const q = state.questions[state.index];
-        const area = document.getElementById('interaction-area');
-        const btn = document.getElementById('action-btn');
-        const toast = document.getElementById('feedback-toast');
-        
-        document.getElementById('engine-mode-tag').innerText = state.mode + " mode";
-        document.getElementById('progress-text').innerText = `Q ${state.index + 1} of ${state.questions.length}`;
-        document.getElementById('question-text').innerText = q.q;
-        
-        toast.innerHTML = "";
-        btn.innerText = state.mode === 'practice' ? "Check Answer" : "Submit Answer";
-        btn.onclick = handleSubmission;
-
-        if (q.type === 'mcq') {
-            area.innerHTML = q.options.map(o => `<button class="mcq-option" onclick="selectMCQ('${o}', this)">${o}</button>`).join('');
-            state.selectedMCQ = null;
-        } else {
-            area.innerHTML = `<input type="text" id="ans-input" placeholder="Your answer here..." autocomplete="off">`;
-            const input = document.getElementById('ans-input');
-            input.focus();
-            input.onkeypress = (e) => { if(e.key === 'Enter') handleSubmission(); };
+            `).join('');
         }
-    }
 
-    function selectMCQ(val, el) {
-        state.selectedMCQ = val;
-        document.querySelectorAll('.mcq-option').forEach(o => o.classList.remove('selected'));
-        el.classList.add('selected');
-    }
+        // Modular Loader
+        function loadAndStart(filePath, mode) {
+            state.mode = mode;
+            const script = document.createElement('script');
+            script.src = filePath;
+            script.onload = () => {
+                state.questions = shuffle([...UNIT_DATA]); // UNIT_DATA comes from the loaded file
+                state.index = 0;
+                state.score = 0;
+                if (mode === 'test') {
+                    showView('view-login');
+                } else {
+                    showView('view-engine');
+                    renderQuestion();
+                }
+            };
+            document.head.appendChild(script);
+        }
 
-    function handleSubmission() {
-        const q = state.questions[state.index];
-        const input = q.type === 'mcq' ? state.selectedMCQ : document.getElementById('ans-input').value;
-        if(!input) return;
+        function launchTest() {
+            state.nick = document.getElementById('student-nick').value.trim();
+            state.class = document.getElementById('student-class').value.trim();
+            if(!state.nick || !state.class) return alert("Both Name and Class are required.");
+            showView('view-engine');
+            renderQuestion();
+        }
 
-        const clean = (s) => s.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
-        const isCorrect = clean(input) === clean(q.a);
-
-        if (state.mode === 'practice') {
+        function renderQuestion() {
+            const q = state.questions[state.index];
+            const area = document.getElementById('interaction-area');
+            const btn = document.getElementById('action-btn');
             const toast = document.getElementById('feedback-toast');
-            toast.innerHTML = isCorrect ? `<span class="correct">Excellent!</span>` : `<span class="incorrect">Correct: ${q.a}</span>`;
-            document.getElementById('action-btn').innerText = "Continue";
-            document.getElementById('action-btn').onclick = nextQuestion;
-            if(isCorrect) state.score += q.pts;
-        } else {
-            if(isCorrect) state.score += q.pts;
-            nextQuestion();
+            
+            document.getElementById('engine-mode-tag').innerText = state.mode + " mode";
+            document.getElementById('progress-text').innerText = `Question ${state.index + 1} of ${state.questions.length}`;
+            document.getElementById('question-text').innerText = q.q;
+            
+            toast.innerHTML = "";
+            btn.innerText = state.mode === 'practice' ? "Check Answer" : "Submit Answer";
+            btn.onclick = handleSubmission;
+
+            if (q.type === 'mcq') {
+                area.innerHTML = q.options.map(o => `<button class="mcq-option" onclick="selectMCQ('${o}', this)">${o}</button>`).join('');
+                state.selectedMCQ = null;
+            } else {
+                area.innerHTML = `<input type="text" id="ans-input" placeholder="Type answer here..." autocomplete="off">`;
+                const input = document.getElementById('ans-input');
+                input.focus();
+                input.onkeypress = (e) => { if(e.key === 'Enter') handleSubmission(); };
+            }
         }
-    }
 
-    function nextQuestion() {
-        state.index++;
-        if (state.index < state.questions.length) renderQuestion();
-        else finalize();
-    }
-
-    function finalize() {
-        showView('view-results');
-        const max = state.questions.reduce((a, b) => a + b.pts, 0);
-        document.getElementById('result-summary').innerText = `${state.score} / ${max} Points`;
-        if(state.mode === 'test') {
-            const res = JSON.parse(localStorage.getItem('grammar_results') || "[]");
-            res.push({ class: state.class, nick: state.nick, score: `${state.score}/${max}`, date: new Date().toLocaleString() });
-            localStorage.setItem('grammar_results', JSON.stringify(res));
+        function selectMCQ(val, el) {
+            state.selectedMCQ = val;
+            document.querySelectorAll('.mcq-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
         }
-    }
 
-    function promptAdmin() {
-        const pass = prompt("Teacher Password:");
-        if (!pass) return;
-        if (window.btoa(pass.trim()) === ADMIN_KEY) {
-            showView('view-admin');
-            loadTable();
-        } else { alert("Unauthorized."); }
-    }
+        function handleSubmission() {
+            const q = state.questions[state.index];
+            const input = q.type === 'mcq' ? state.selectedMCQ : document.getElementById('ans-input').value;
+            if(!input) return;
 
-    function loadTable() {
-        const data = JSON.parse(localStorage.getItem('grammar_results') || "[]");
-        document.getElementById('admin-table-body').innerHTML = data.map(r => `<tr><td>${r.class}</td><td>${r.nick}</td><td>${r.score}</td><td>${r.date}</td></tr>`).join('');
-    }
+            const clean = (s) => s.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
+            const isCorrect = clean(input) === clean(q.a);
 
-    function purgeData() {
-        if(confirm("Are you SURE you want to clear all student results? This cannot be undone.")) {
-            localStorage.removeItem('grammar_results');
-            loadTable();
-            alert("Data purged.");
+            if (state.mode === 'practice') {
+                const toast = document.getElementById('feedback-toast');
+                toast.innerHTML = isCorrect ? `<span class="correct">Excellent!</span>` : `<span class="incorrect">Correction: ${q.a}</span>`;
+                document.getElementById('action-btn').innerText = "Continue";
+                document.getElementById('action-btn').onclick = nextQuestion;
+                if(isCorrect) state.score += q.pts;
+            } else {
+                if(isCorrect) state.score += q.pts;
+                nextQuestion();
+            }
         }
-    }
 
-    function exportCSV() {
-        const data = JSON.parse(localStorage.getItem('grammar_results') || "[]");
-        let csv = "Class,Student,Score,Date\n" + data.map(r => `"${r.class}","${r.nick}","${r.score}","${r.date}"`).join("\n");
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'grammar_results.csv'; a.click();
-    }
+        function nextQuestion() {
+            state.index++;
+            if (state.index < state.questions.length) renderQuestion();
+            else finalize();
+        }
 
-    function showLanding() { showView('view-landing'); }
-    function showView(id) { ['view-landing','view-login','view-engine','view-results','view-admin'].forEach(v => document.getElementById(v).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
-    function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+        function finalize() {
+            showView('view-results');
+            const max = state.questions.reduce((a, b) => a + b.pts, 0);
+            document.getElementById('result-summary').innerText = `${state.score} / ${max} Points`;
+            if(state.mode === 'test') {
+                const res = JSON.parse(localStorage.getItem('grammar_results') || "[]");
+                res.push({ class: state.class, nick: state.nick, score: `${state.score}/${max}`, date: new Date().toLocaleString() });
+                localStorage.setItem('grammar_results', JSON.stringify(res));
+            }
+        }
 
-    init();
-</script>
+        function promptAdmin() {
+            const pass = prompt("Teacher Password:");
+            if (!pass) return;
+            if (window.btoa(pass.trim()) === ADMIN_KEY) {
+                showView('view-admin');
+                loadTable();
+            } else { alert("Unauthorized."); }
+        }
+
+        function loadTable() {
+            const data = JSON.parse(localStorage.getItem('grammar_results') || "[]");
+            document.getElementById('admin-table-body').innerHTML = data.map(r => `<tr><td>${r.class}</td><td>${r.nick}</td><td>${r.score}</td><td>${r.date}</td></tr>`).join('');
+        }
+
+        function purgeData() {
+            if(confirm("DANGER: This will permanently delete ALL student test results. Continue?")) {
+                localStorage.removeItem('grammar_results');
+                loadTable();
+                alert("Data purged.");
+            }
+        }
+
+        function exportCSV() {
+            const data = JSON.parse(localStorage.getItem('grammar_results') || "[]");
+            let csv = "Class,Student,Score,Date\n" + data.map(r => `"${r.class}","${r.nick}","${r.score}","${r.date}"`).join("\n");
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'test_results.csv'; a.click();
+        }
+
+        function showLanding() { showView('view-landing'); }
+        function showView(id) { ['view-landing','view-login','view-engine','view-results','view-admin'].forEach(v => document.getElementById(v).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+        function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>
