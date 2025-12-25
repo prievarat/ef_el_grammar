@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar Mastery Engine v8</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* --- DESIGN BRIEF VARIABLES --- */
+        :root {
+            --primary-300: #F9C97A; --primary-500: #F4A329; --primary-700: #B45309;
+            --secondary-300: #7EDAD6; --secondary-500: #2BB6B4; --secondary-700: #0F766E;
+            --bg: #FFF7F2; --surface: #FFFFFF; --surface-alt: #F5F7FA; --border: #E6E9EF;
+            --text: #1F2937; --text-muted: #6B7280; --text-inverse: #FFFFFF;
+            --success: #2F9E44; --error: #D92D20;
+            --radius: 16px; --radius-pill: 9999px;
+            --shadow: 0 4px 14px rgba(17,24,39,0.08);
+            --transition: 180ms ease;
+        }
+
+        /* --- BASE STYLES --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Inter", "Nunito", sans-serif; background-color: var(--bg); color: var(--text); padding-top: 100px; font-size: 16px; }
+
+        /* Navigation */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; height: 75px; background: var(--surface);
+            border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px; z-index: 1000; box-shadow: var(--shadow);
+        }
+        .nav-logo { font-weight: 800; color: var(--primary-700); font-size: 24px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-item { cursor: pointer; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 8px; font-size: 16px; transition: var(--transition); }
+        .nav-item:hover { color: var(--primary-500); }
+
+        /* Layout */
+        .container { width: 95%; max-width: 850px; margin: 0 auto; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
+
+        /* Landing Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+        .topic-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; transition: var(--transition); border-bottom: 5px solid var(--primary-300); }
+        .topic-card:hover { transform: translateY(-5px); border-color: var(--primary-500); }
+        .topic-card h3 { font-size: 22px; color: var(--primary-700); margin-bottom: 20px; }
+
+        /* Form Elements */
+        .input-group { margin-bottom: 24px; }
+        label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; }
+        input[type="text"] { 
+            width: 100%; border: none; border-bottom: 3px solid var(--border); 
+            font-size: 24px; padding: 12px 0; background: transparent; 
+            color: var(--primary-700); font-weight: 600; transition: var(--transition); 
+        }
+        input[type="text"]:focus { outline: none; border-color: var(--secondary-500); }
+        
+        /* MCQ Buttons */
+        .mcq-option { 
+            width: 100%; background: var(--surface-alt); padding: 22px; 
+            border-radius: 14px; border: 2px solid transparent; text-align: left; 
+            margin-bottom: 14px; cursor: pointer; font-size: 18px; font-weight: 600;
+            font-family: inherit; transition: var(--transition);
+        }
+        .mcq-option:hover { background: var(--bg); border-color: var(--primary-300); }
+        .mcq-option.selected { border-color: var(--secondary-500); background: rgba(43, 182, 180, 0.08); color: var(--secondary-700); }
+
+        /* Action Area Proximity */
+        .action-area {
+            margin-top: 20px; padding-top: 30px; border-top: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        button { cursor: pointer; font-weight: 600; border-radius: var(--radius-pill); border: none; padding: 14px 28px; transition: var(--transition); font-family: inherit; font-size: 16px; }
+        .btn-primary { background: var(--primary-700); color: white; }
+        .btn-primary:hover { filter: brightness(92%); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary-300); color: var(--primary-700); }
+        .btn-danger { background: var(--error); color: white; }
+        .btn-danger:hover { filter: brightness(90%); }
+
+        .feedback-text { font-size: 18px; font-weight: 700; flex: 1; }
+        .correct { color: var(--success); }
+        .incorrect { color: var(--error); }
+        
+        .hidden { display: none !important; }
+        table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+        th, td { text-align: left; padding: 16px; border-bottom: 1px solid var(--border); font-size: 16px; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-logo" onclick="showLanding()"><i data-lucide="graduation-cap"></i> GrammarFlow</div>
+        <div class="nav-links">
+            <div class="nav-item" onclick="showLanding()"><i data-lucide="home"></i> Menu</div>
+            <div class="nav-item" onclick="promptAdmin()"><i data-lucide="lock"></i> Admin</div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="view-landing">
+            <h1 style="font-size: 32px; margin-bottom: 12px;">Grammar Hub 📚</h1>
+            <p style="color: var(--text-muted); font-size: 18px; margin-bottom: 40px;">Choose a unit to study or take a graded test.</p>
+            <div class="grid" id="topic-grid"></div>
+        </div>
+
+        <div id="view-login" class="hidden">
+            <div class="card" style="max-width: 500px; margin: 0 auto;">
+                <h2 style="margin-bottom: 24px;">Grades Test Mode</h2>
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="student-nick" placeholder="e.g. John Doe">
+                </div>
+                <div class="input-group">
+                    <label>Class / Group</label>
+                    <input type="text" id="student-class" placeholder="e.g. 10.B">
+                </div>
+                <button class="btn-primary" style="width: 100%; font-size: 18px;" onclick="launchTest()">Start Graded Test</button>
+            </div>
+        </div>
+
+        <div id="view-engine" class="hidden">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 14px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                    <span id="engine-mode-tag" style="color: var(--secondary-500)"></span>
+                    <span id="progress-text"></span>
+                </div>
+                <h2 id="question-text" style="font-size: 26px; line-height: 1.4; margin-bottom: 24px;"></h2>
+                <div id="interaction-area"></div>
+                <div class="action-area">
+                    <div id="feedback-toast" class="feedback-text"></div>
+                    <button id="action-btn" class="btn-primary">Check Answer</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-results" class="hidden">
+            <div class="card" style="text-align: center; padding: 60px;">
+                <h1 style="color: var(--secondary-500); font-size: 40px;">Finished!</h1>
+                <p id="result-summary" style="font-size: 32px; font-weight: 800; margin: 30px 0; color: var(--primary-700);"></p>
+                <button class="btn-primary" style="padding: 18px 36px;" onclick="showLanding()">Back to Menu</button>
+            </div>
+        </div>
+
+        <div id="view-admin" class="hidden">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Teacher Dashboard</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-outline" onclick="exportCSV()"><i data-lucide="download" style="width:18px;"></i> Export CSV</button>
+                        <button class="btn-danger" onclick="purgeData()"><i data-lucide="trash-2" style="width:18px;"></i> Purge Data</button>
+                    </div>
+                </div>
+                <table>
+                    <thead><tr style="color: var(--text-muted)"><th>Class</th><th>Student</th><th>Score</th><th>Date</th></tr></thead>
+                    <tbody id="admin-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const ADMIN_KEY = "QXJzZW5hbDIy"; // Arsenal22
+
+    const MASTER_BANK = [
+        { topic: "Past Simple - Regular", type: "mcq", q: "They ___ the house on Saturday.", options: ["clean", "cleaned", "clened"], a: "cleaned", pts: 1 },
+        { topic: "Past Simple - Regular", type: "gap-fill", q: "We [watch] ___ a great movie last night.", a: "watched", pts: 1 },
+        { topic: "Past Simple - Regular", type: "transformation", q: "Negative: 'She played tennis.'", a: "She didn't play tennis", pts: 2 },
+        { topic: "Past Simple - Regular", type: "translation", q: "Translate: 'Tegnap főztem.'", a: "I cooked yesterday", pts: 2 }
+    ];
+
+    let state = { mode: 'practice', topic: '', questions: [], index: 0, score: 0, nick: '', class: '', selectedMCQ: null };
+
+    function init() {
+        lucide.createIcons();
+        const grid = document.getElementById('topic-grid');
+        const topics = [...new Set(MASTER_BANK.map(i => i.topic))];
+        grid.innerHTML = topics.map(t => `
+            <div class="topic-card">
+                <h3>${t}</h3>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn-outline" style="flex:1" onclick="startSession('${t}', 'practice')">Practice</button>
+                    <button class="btn-primary" style="flex:1" onclick="prepTest('${t}')">Graded Test</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function prepTest(t) { state.topic = t; showView('view-login'); }
+
+    function launchTest() {
+        state.nick = document.getElementById('student-nick').value.trim();
+        state.class = document.getElementById('student-class').value.trim();
+        if(!state.nick || !state.class) return alert("Please fill in both Name and Class.");
+        startSession(state.topic, 'test');
+    }
+
+    function startSession(topic, mode) {
+        state.mode = mode;
+        state.questions = shuffle([...MASTER_BANK.filter(i => i.topic === topic)]);
+        state.index = 0; state.score = 0;
+        showView('view-engine');
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const q = state.questions[state.index];
+        const area = document.getElementById('interaction-area');
+        const btn = document.getElementById('action-btn');
+        const toast = document.getElementById('feedback-toast');
+        
+        document.getElementById('engine-mode-tag').innerText = state.mode + " mode";
+        document.getElementById('progress-text').innerText = `Q ${state.index + 1} of ${state.questions.length}`;
+        document.getElementById('question-text').innerText = q.q;
+        
+        toast.innerHTML = "";
+        btn.innerText = state.mode === 'practice' ? "Check Answer" : "Submit Answer";
+        btn.onclick = handleSubmission;
+
+        if (q.type === 'mcq') {
+            area.innerHTML = q.options.map(o => `<button class="mcq-option" onclick="selectMCQ('${o}', this)">${o}</button>`).join('');
+            state.selectedMCQ = null;
+        } else {
+            area.innerHTML = `<input type="text" id="ans-input" placeholder="Your answer here..." autocomplete="off">`;
+            const input = document.getElementById('ans-input');
+            input.focus();
+            input.onkeypress = (e) => { if(e.key === 'Enter') handleSubmission(); };
+        }
+    }
+
+    function selectMCQ(val, el) {
+        state.selectedMCQ = val;
+        document.querySelectorAll('.mcq-option').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+
+    function handleSubmission() {
+        const q = state.questions[state.index];
+        const input = q.type === 'mcq' ? state.selectedMCQ : document.getElementById('ans-input').value;
+        if(!input) return;
+
+        const clean = (s) => s.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
+        const isCorrect = clean(input) === clean(q.a);
+
+        if (state.mode === 'practice') {
+            const toast = document.getElementById('feedback-toast');
+            toast.innerHTML = isCorrect ? `<span class="correct">Excellent!</span>` : `<span class="incorrect">Correct: ${q.a}</span>`;
+            document.getElementById('action-btn').innerText = "Continue";
+            document.getElementById('action-btn').onclick = nextQuestion;
+            if(isCorrect) state.score += q.pts;
+        } else {
+            if(isCorrect) state.score += q.pts;
+            nextQuestion();
+        }
+    }
+
+    function nextQuestion() {
+        state.index++;
+        if (state.index < state.questions.length) renderQuestion();
+        else finalize();
+    }
+
+    function finalize() {
+        showView('view-results');
+        const max = state.questions.reduce((a, b) => a + b.pts, 0);
+        document.getElementById('result-summary').innerText = `${state.score} / ${max} Points`;
+        if(state.mode === 'test') {
+            const res = JSON.parse(localStorage.getItem('grammar_results') || "[]");
+            res.push({ class: state.class, nick: state.nick, score: `${state.score}/${max}`, date: new Date().toLocaleString() });
+            localStorage.setItem('grammar_results', JSON.stringify(res));
+        }
+    }
+
+    function promptAdmin() {
+        const pass = prompt("Teacher Password:");
+        if (!pass) return;
+        if (window.btoa(pass.trim()) === ADMIN_KEY) {
+            showView('view-admin');
+            loadTable();
+        } else { alert("Unauthorized."); }
+    }
+
+    function loadTable() {
+        const data = JSON.parse(localStorage.getItem('grammar_results') || "[]");
+        document.getElementById('admin-table-body').innerHTML = data.map(r => `<tr><td>${r.class}</td><td>${r.nick}</td><td>${r.score}</td><td>${r.date}</td></tr>`).join('');
+    }
+
+    function purgeData() {
+        if(confirm("Are you SURE you want to clear all student results? This cannot be undone.")) {
+            localStorage.removeItem('grammar_results');
+            loadTable();
+            alert("Data purged.");
+        }
+    }
+
+    function exportCSV() {
+        const data = JSON.parse(localStorage.getItem('grammar_results') || "[]");
+        let csv = "Class,Student,Score,Date\n" + data.map(r => `"${r.class}","${r.nick}","${r.score}","${r.date}"`).join("\n");
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'grammar_results.csv'; a.click();
+    }
+
+    function showLanding() { showView('view-landing'); }
+    function showView(id) { ['view-landing','view-login','view-engine','view-results','view-admin'].forEach(v => document.getElementById(v).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+    function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+
+    init();
+</script>
+</body>
+</html>
