@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grammar Mastery Engine</title>
+    <title>GrammarFlow Mastery Engine</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     
@@ -12,6 +12,7 @@
         :root {
             --primary-300: #F9C97A; --primary-500: #F4A329; --primary-700: #B45309;
             --secondary-300: #7EDAD6; --secondary-500: #2BB6B4; --secondary-700: #0F766E;
+            --accent-300: #F49DB8; --accent-500: #E8467B;
             --bg: #FFF7F2; --surface: #FFFFFF; --surface-alt: #F5F7FA; --border: #E6E9EF;
             --text: #1F2937; --text-muted: #6B7280; --text-inverse: #FFFFFF;
             --success: #2F9E44; --error: #D92D20;
@@ -24,202 +25,177 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: "Inter", "Nunito", sans-serif; background-color: var(--bg); color: var(--text); padding-top: 100px; font-size: 16px; }
 
-        /* Navigation */
         nav {
             position: fixed; top: 0; left: 0; right: 0; height: 75px; background: var(--surface);
             border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;
             padding: 0 40px; z-index: 1000; box-shadow: var(--shadow);
         }
-        .nav-logo { font-weight: 800; color: var(--primary-700); font-size: 24px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .nav-links { display: flex; gap: 30px; }
-        .nav-item { cursor: pointer; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 8px; font-size: 16px; transition: var(--transition); }
-        .nav-item:hover { color: var(--primary-500); }
-
-        /* Layout */
+        .nav-logo { font-weight: 800; color: var(--secondary-700); font-size: 24px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        
         .container { width: 95%; max-width: 850px; margin: 0 auto; }
         .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
 
-        /* Landing Grid */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
-        .topic-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; transition: var(--transition); border-bottom: 5px solid var(--primary-300); }
-        .topic-card:hover { transform: translateY(-5px); border-color: var(--primary-500); }
-        .topic-card h3 { font-size: 22px; color: var(--primary-700); margin-bottom: 20px; }
+        /* Practice Config Grid */
+        .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0; }
+        .config-option { border: 2px solid var(--border); padding: 15px; border-radius: 12px; cursor: pointer; transition: var(--transition); }
+        .config-option.active { border-color: var(--secondary-500); background: #f0fdfa; }
 
-        /* Input Styles */
-        .input-group { margin-bottom: 24px; }
-        label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; }
-        input[type="text"] { 
-            width: 100%; border: none; border-bottom: 3px solid var(--border); 
-            font-size: 24px; padding: 12px 0; background: transparent; 
-            color: var(--primary-700); font-weight: 600; transition: var(--transition); 
-        }
-        input[type="text"]:focus { outline: none; border-color: var(--secondary-500); }
+        /* Drag & Drop Styles */
+        .drop-zone { min-height: 60px; border: 2px dashed var(--secondary-300); border-radius: 12px; padding: 10px; display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; background: var(--surface-alt); }
+        .word-pill { background: var(--surface); border: 1px solid var(--border); padding: 8px 16px; border-radius: var(--radius-pill); cursor: pointer; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .word-pill:hover { background: var(--secondary-500); color: white; border-color: var(--secondary-700); }
+
+        /* Buttons - Softened as per request */
+        button { cursor: pointer; font-weight: 600; border-radius: var(--radius-pill); border: none; padding: 14px 28px; transition: var(--transition); font-family: inherit; }
+        .btn-primary { background: var(--secondary-500); color: white; } /* Changed to Teal */
+        .btn-primary:hover { filter: brightness(95%); transform: translateY(-1px); }
+        .btn-outline { background: transparent; border: 2px solid var(--secondary-300); color: var(--secondary-700); }
         
-        /* MCQ Design */
         .mcq-option { 
-            width: 100%; background: var(--surface-alt); padding: 22px; 
+            width: 100%; background: var(--surface-alt); padding: 18px; 
             border-radius: 14px; border: 2px solid transparent; text-align: left; 
-            margin-bottom: 14px; cursor: pointer; font-size: 18px; font-weight: 600;
-            font-family: inherit; transition: var(--transition);
+            margin-bottom: 12px; cursor: pointer; font-weight: 600; transition: var(--transition);
         }
-        .mcq-option:hover { background: var(--bg); border-color: var(--primary-300); }
-        .mcq-option.selected { border-color: var(--secondary-500); background: rgba(43, 182, 180, 0.08); color: var(--secondary-700); }
+        .mcq-option.selected { border-color: var(--secondary-500); background: #f0fdfa; }
 
-        /* Action Area */
-        .action-area {
-            margin-top: 20px; padding-top: 30px; border-top: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: space-between;
-        }
-
-        button { cursor: pointer; font-weight: 600; border-radius: var(--radius-pill); border: none; padding: 14px 28px; transition: var(--transition); font-family: inherit; font-size: 16px; }
-        .btn-primary { background: var(--primary-700); color: white; }
-        .btn-primary:hover { filter: brightness(92%); }
-        .btn-outline { background: transparent; border: 2px solid var(--primary-300); color: var(--primary-700); }
-        .btn-danger { background: var(--error); color: white; }
-
-        .feedback-text { font-size: 18px; font-weight: 700; flex: 1; }
-        .correct { color: var(--success); }
-        .incorrect { color: var(--error); }
-        
         .hidden { display: none !important; }
-        table { width: 100%; border-collapse: collapse; margin-top: 24px; }
-        th, td { text-align: left; padding: 16px; border-bottom: 1px solid var(--border); font-size: 16px; }
+        input[type="text"] { width: 100%; border: none; border-bottom: 3px solid var(--border); font-size: 22px; padding: 12px 0; background: transparent; color: var(--secondary-700); font-weight: 600; outline: none; }
+        input[type="text"]:focus { border-color: var(--secondary-500); }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="nav-logo" onclick="showLanding()"><i data-lucide="graduation-cap"></i> GrammarFlow</div>
-        <div class="nav-links">
-            <div class="nav-item" onclick="showLanding()"><i data-lucide="home"></i> Menu</div>
-            <div class="nav-item" onclick="promptAdmin()"><i data-lucide="lock"></i> Admin</div>
-        </div>
+        <div class="nav-logo" onclick="location.reload()"><i data-lucide="sparkles"></i> GrammarFlow</div>
+        <div style="font-weight: 600; color: var(--text-muted)" id="global-score-display"></div>
     </nav>
 
     <div class="container">
         <div id="view-landing">
-            <h1 style="font-size: 32px; margin-bottom: 12px;">English Grammar Practice 📚</h1>
-            <p style="color: var(--text-muted); font-size: 18px; margin-bottom: 40px;">Choose a unit to study. Graded test results are saved for your teacher.</p>
-            <div class="grid" id="topic-grid"></div>
+            <h1 style="margin-bottom: 10px;">Welcome, Educator! 🎓</h1>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Select a unit to begin scaffolding your knowledge.</p>
+            <div id="topic-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;"></div>
+        </div>
+
+        <div id="view-setup" class="hidden">
+            <div class="card">
+                <h2>Practice Configuration</h2>
+                <p style="color: var(--text-muted)">Customize your session for optimal learning.</p>
+                
+                <div class="config-grid">
+                    <div>
+                        <label style="font-weight: 700; font-size: 12px; text-transform: uppercase;">Exercise Count</label>
+                        <select id="setup-count" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-top: 8px;">
+                            <option value="5">5 Questions</option>
+                            <option value="10">10 Questions</option>
+                            <option value="20">All Questions</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-weight: 700; font-size: 12px; text-transform: uppercase;">Difficulty</label>
+                        <div style="padding-top: 10px; display: flex; gap: 10px;">
+                            <label><input type="checkbox" checked id="type-mcq"> MCQ</label>
+                            <label><input type="checkbox" checked id="type-prod"> Production</label>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-primary" style="width: 100%" onclick="launchPractice()">Start Practice</button>
+            </div>
         </div>
 
         <div id="view-login" class="hidden">
             <div class="card" style="max-width: 500px; margin: 0 auto;">
-                <h2 style="margin-bottom: 24px;">Enter Graded Session</h2>
-                <div class="input-group">
-                    <label>Your Full Name</label>
-                    <input type="text" id="student-nick" placeholder="e.g. Maria Kovács">
-                </div>
-                <div class="input-group">
-                    <label>Class / Group</label>
-                    <input type="text" id="student-class" placeholder="e.g. 11.A">
-                </div>
-                <button class="btn-primary" style="width: 100%; font-size: 18px;" onclick="launchTest()">Begin Test</button>
+                <h2 style="margin-bottom: 20px;">Graded Session</h2>
+                <input type="text" id="student-nick" placeholder="Student Name" style="margin-bottom: 20px;">
+                <input type="text" id="student-class" placeholder="Class/Group" style="margin-bottom: 20px;">
+                <button class="btn-primary" style="width: 100%" onclick="launchTest()">Enter Test</button>
             </div>
         </div>
 
         <div id="view-engine" class="hidden">
             <div class="card">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 14px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
-                    <span id="engine-mode-tag" style="color: var(--secondary-500)"></span>
-                    <span id="progress-text"></span>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: 700; font-size: 13px;">
+                    <span id="mode-tag" style="color: var(--secondary-500)"></span>
+                    <span id="progress-tag"></span>
                 </div>
-                <h2 id="question-text" style="font-size: 26px; line-height: 1.4; margin-bottom: 24px;"></h2>
+                <h2 id="question-text" style="margin-bottom: 24px;"></h2>
                 <div id="interaction-area"></div>
-                <div class="action-area">
-                    <div id="feedback-toast" class="feedback-text"></div>
-                    <button id="action-btn" class="btn-primary">Check Answer</button>
+                
+                <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 20px;">
+                    <div id="feedback-msg" style="font-weight: 700;"></div>
+                    <button id="action-btn" class="btn-primary">Submit Answer</button>
                 </div>
             </div>
         </div>
 
         <div id="view-results" class="hidden">
-            <div class="card" style="text-align: center; padding: 60px;">
-                <h1 style="color: var(--secondary-500); font-size: 40px;">Session Finished!</h1>
-                <p id="result-summary" style="font-size: 32px; font-weight: 800; margin: 30px 0; color: var(--primary-700);"></p>
-                <button class="btn-primary" style="padding: 18px 36px;" onclick="showLanding()">Back to Main Menu</button>
-            </div>
-        </div>
-
-        <div id="view-admin" class="hidden">
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                    <h2>Results Dashboard</h2>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn-outline" onclick="exportCSV()"><i data-lucide="download" style="width:18px;"></i> Export CSV</button>
-                        <button class="btn-danger" onclick="purgeData()"><i data-lucide="trash-2" style="width:18px;"></i> Purge Data</button>
-                    </div>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead><tr style="color: var(--text-muted)"><th>Class</th><th>Student</th><th>Score</th><th>Date</th></tr></thead>
-                        <tbody id="admin-table-body"></tbody>
-                    </table>
-                </div>
+            <div class="card" style="text-align: center;">
+                <h1 id="res-title">Excellent Work!</h1>
+                <p id="res-score" style="font-size: 48px; font-weight: 800; color: var(--secondary-500); margin: 20px 0;"></p>
+                <button class="btn-primary" onclick="location.reload()">Return Home</button>
             </div>
         </div>
     </div>
 
-    <script src="data.js"></script>
-
     <script>
-        // Password "Arsenal22" safely stored
-        const ADMIN_KEY = "QXJzZW5hbDIy"; 
+        // Mock data logic for demonstration - In production, this loads from data.js
+        const MOCK_DATA = [
+            { type: 'mcq', q: "Which sentence is correct?", options: ["He don't like appls", "He doesn't like apples", "He not like apples"], a: "He doesn't like apples", pts: 10 },
+            { type: 'prod', q: "Correct the sentence: 'She go to school every day.'", a: "She goes to school every day", pts: 10 },
+            { type: 'scramble', q: "Order the words:", a: "I am learning English", words: ["learning", "I", "English", "am"], pts: 15 }
+        ];
 
         let state = {
             mode: 'practice',
             questions: [],
             index: 0,
             score: 0,
-            nick: '',
-            class: '',
-            selectedMCQ: null
+            maxScore: 0,
+            scrambleAnswer: []
         };
 
         function init() {
             lucide.createIcons();
+            // In reality, this loop uses GRAMMAR_UNITS
             const grid = document.getElementById('topic-grid');
+            const demoUnits = [{title: "Present Simple", file: "unit1.js"}];
             
-            // Check if data.js is loaded
-            if (typeof GRAMMAR_UNITS === 'undefined') {
-                grid.innerHTML = "<p style='color:red'>Error: data.js not found. Make sure it is in the same folder as index.html.</p>";
-                return;
-            }
-
-            grid.innerHTML = GRAMMAR_UNITS.map(unit => `
-                <div class="topic-card">
-                    <h3>${unit.title}</h3>
-                    <div style="display: flex; gap: 12px;">
-                        <button class="btn-outline" style="flex:1" onclick="loadAndStart('${unit.file}', 'practice')">Practice</button>
-                        <button class="btn-primary" style="flex:1" onclick="loadAndStart('${unit.file}', 'test')">Test</button>
+            grid.innerHTML = demoUnits.map(u => `
+                <div class="card" style="padding: 24px;">
+                    <h3 style="margin-bottom: 15px;">${u.title}</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-outline" style="flex:1" onclick="startSetup('${u.file}')">Practice</button>
+                        <button class="btn-primary" style="flex:1" onclick="prepTest('${u.file}')">Test</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        // Modular Loader
-        function loadAndStart(filePath, mode) {
-            state.mode = mode;
-            const script = document.createElement('script');
-            script.src = filePath;
-            script.onload = () => {
-                state.questions = shuffle([...UNIT_DATA]); // UNIT_DATA comes from the loaded file
-                state.index = 0;
-                state.score = 0;
-                if (mode === 'test') {
-                    showView('view-login');
-                } else {
-                    showView('view-engine');
-                    renderQuestion();
-                }
-            };
-            document.head.appendChild(script);
+        function startSetup(file) {
+            showView('view-setup');
+        }
+
+        function launchPractice() {
+            const count = parseInt(document.getElementById('setup-count').value);
+            state.mode = 'practice';
+            state.questions = MOCK_DATA.slice(0, count); // Shuffled in production
+            state.index = 0;
+            state.score = 0;
+            state.maxScore = state.questions.reduce((a, b) => a + b.pts, 0);
+            showView('view-engine');
+            renderQuestion();
+        }
+
+        function prepTest(file) {
+            state.mode = 'test';
+            showView('view-login');
         }
 
         function launchTest() {
-            state.nick = document.getElementById('student-nick').value.trim();
-            state.class = document.getElementById('student-class').value.trim();
-            if(!state.nick || !state.class) return alert("Both Name and Class are required.");
+            state.questions = MOCK_DATA;
+            state.index = 0;
+            state.score = 0;
+            state.maxScore = state.questions.reduce((a, b) => a + b.pts, 0);
             showView('view-engine');
             renderQuestion();
         }
@@ -228,102 +204,91 @@
             const q = state.questions[state.index];
             const area = document.getElementById('interaction-area');
             const btn = document.getElementById('action-btn');
-            const toast = document.getElementById('feedback-toast');
-            
-            document.getElementById('engine-mode-tag').innerText = state.mode + " mode";
-            document.getElementById('progress-text').innerText = `Question ${state.index + 1} of ${state.questions.length}`;
+            document.getElementById('feedback-msg').innerHTML = "";
+            document.getElementById('mode-tag').innerText = state.mode.toUpperCase() + " MODE";
+            document.getElementById('progress-tag').innerText = `Q ${state.index + 1} / ${state.questions.length}`;
             document.getElementById('question-text').innerText = q.q;
             
-            toast.innerHTML = "";
-            btn.innerText = state.mode === 'practice' ? "Check Answer" : "Submit Answer";
-            btn.onclick = handleSubmission;
+            btn.innerText = "Submit Answer";
+            btn.onclick = checkAnswer;
 
             if (q.type === 'mcq') {
-                area.innerHTML = q.options.map(o => `<button class="mcq-option" onclick="selectMCQ('${o}', this)">${o}</button>`).join('');
-                state.selectedMCQ = null;
-            } else {
-                area.innerHTML = `<input type="text" id="ans-input" placeholder="Type answer here..." autocomplete="off">`;
-                const input = document.getElementById('ans-input');
-                input.focus();
-                input.onkeypress = (e) => { if(e.key === 'Enter') handleSubmission(); };
+                area.innerHTML = q.options.map(o => `<div class="mcq-option" onclick="selectMCQ(this, '${o}')">${o}</div>`).join('');
+                state.tempAns = null;
+            } else if (q.type === 'prod') {
+                area.innerHTML = `<input type="text" id="prod-input" autocomplete="off" placeholder="Type here...">`;
+                document.getElementById('prod-input').focus();
+            } else if (q.type === 'scramble') {
+                state.scrambleAnswer = [];
+                area.innerHTML = `
+                    <div class="drop-zone" id="drop-zone"></div>
+                    <div id="word-pool" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        ${q.words.map(w => `<div class="word-pill" onclick="handleScrambleClick(this, '${w}')">${w}</div>`).join('')}
+                    </div>
+                `;
             }
         }
 
-        function selectMCQ(val, el) {
-            state.selectedMCQ = val;
+        function handleScrambleClick(el, word) {
+            const zone = document.getElementById('drop-zone');
+            if (el.parentNode.id === 'word-pool') {
+                zone.appendChild(el);
+                state.scrambleAnswer.push(word);
+            } else {
+                document.getElementById('word-pool').appendChild(el);
+                state.scrambleAnswer = state.scrambleAnswer.filter(w => w !== word);
+            }
+        }
+
+        function selectMCQ(el, val) {
             document.querySelectorAll('.mcq-option').forEach(o => o.classList.remove('selected'));
             el.classList.add('selected');
+            state.tempAns = val;
         }
 
-        function handleSubmission() {
+        function checkAnswer() {
             const q = state.questions[state.index];
-            const input = q.type === 'mcq' ? state.selectedMCQ : document.getElementById('ans-input').value;
-            if(!input) return;
+            let userAns = "";
 
-            const clean = (s) => s.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
-            const isCorrect = clean(input) === clean(q.a);
+            if (q.type === 'mcq') userAns = state.tempAns;
+            else if (q.type === 'prod') userAns = document.getElementById('prod-input').value;
+            else if (q.type === 'scramble') userAns = state.scrambleAnswer.join(" ");
+
+            if (!userAns && q.type !== 'scramble') return;
+
+            const isCorrect = userAns.toLowerCase().trim() === q.a.toLowerCase().trim();
+            if (isCorrect) state.score += q.pts;
 
             if (state.mode === 'practice') {
-                const toast = document.getElementById('feedback-toast');
-                toast.innerHTML = isCorrect ? `<span class="correct">Excellent!</span>` : `<span class="incorrect">Correction: ${q.a}</span>`;
+                const feedback = document.getElementById('feedback-msg');
+                feedback.innerHTML = isCorrect ? `<span style="color:var(--success)">Correct! +${q.pts}</span>` : `<span style="color:var(--error)">Incorrect. Answer: ${q.a}</span>`;
                 document.getElementById('action-btn').innerText = "Continue";
-                document.getElementById('action-btn').onclick = nextQuestion;
-                if(isCorrect) state.score += q.pts;
+                document.getElementById('action-btn').onclick = () => { state.index++; moveNext(); };
+                updateHeaderScore();
             } else {
-                if(isCorrect) state.score += q.pts;
-                nextQuestion();
+                state.index++;
+                moveNext();
             }
         }
 
-        function nextQuestion() {
-            state.index++;
+        function moveNext() {
             if (state.index < state.questions.length) renderQuestion();
-            else finalize();
+            else finish();
         }
 
-        function finalize() {
+        function updateHeaderScore() {
+            document.getElementById('global-score-display').innerText = `Current Score: ${state.score}`;
+        }
+
+        function finish() {
             showView('view-results');
-            const max = state.questions.reduce((a, b) => a + b.pts, 0);
-            document.getElementById('result-summary').innerText = `${state.score} / ${max} Points`;
-            if(state.mode === 'test') {
-                const res = JSON.parse(localStorage.getItem('grammar_results') || "[]");
-                res.push({ class: state.class, nick: state.nick, score: `${state.score}/${max}`, date: new Date().toLocaleString() });
-                localStorage.setItem('grammar_results', JSON.stringify(res));
-            }
+            document.getElementById('res-score').innerText = `${state.score} / ${state.maxScore}`;
         }
 
-        function promptAdmin() {
-            const pass = prompt("Teacher Password:");
-            if (!pass) return;
-            if (window.btoa(pass.trim()) === ADMIN_KEY) {
-                showView('view-admin');
-                loadTable();
-            } else { alert("Unauthorized."); }
+        function showView(id) {
+            ['view-landing', 'view-setup', 'view-login', 'view-engine', 'view-results'].forEach(v => document.getElementById(v).classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
         }
-
-        function loadTable() {
-            const data = JSON.parse(localStorage.getItem('grammar_results') || "[]");
-            document.getElementById('admin-table-body').innerHTML = data.map(r => `<tr><td>${r.class}</td><td>${r.nick}</td><td>${r.score}</td><td>${r.date}</td></tr>`).join('');
-        }
-
-        function purgeData() {
-            if(confirm("DANGER: This will permanently delete ALL student test results. Continue?")) {
-                localStorage.removeItem('grammar_results');
-                loadTable();
-                alert("Data purged.");
-            }
-        }
-
-        function exportCSV() {
-            const data = JSON.parse(localStorage.getItem('grammar_results') || "[]");
-            let csv = "Class,Student,Score,Date\n" + data.map(r => `"${r.class}","${r.nick}","${r.score}","${r.date}"`).join("\n");
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'test_results.csv'; a.click();
-        }
-
-        function showLanding() { showView('view-landing'); }
-        function showView(id) { ['view-landing','view-login','view-engine','view-results','view-admin'].forEach(v => document.getElementById(v).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
-        function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
