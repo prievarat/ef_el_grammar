@@ -1,5 +1,5 @@
 // Filename: units/regular_past.js
-const UNIT_DATA = [
+var UNIT_DATA = [
     // --- 40 MCQs: FOCUS ON SPELLING (1pt) ---
     { type: "mcq", q: "We ___ for three hours yesterday.", options: ["stoppied", "stopped", "stoped"], a: "stopped", pts: 1 },
     { type: "mcq", q: "She ___ to London in 2010.", options: ["moved", "moveed", "movvid"], a: "moved", pts: 1 },
