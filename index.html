@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrammarFlow Mastery Engine</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-300: #F9C97A; --primary-500: #F4A329; --primary-700: #B45309;
+            --secondary-300: #7EDAD6; --secondary-500: #2BB6B4; --secondary-700: #0F766E;
+            --bg: #FFF7F2; --surface: #FFFFFF; --surface-alt: #F5F7FA; --border: #E6E9EF;
+            --text: #1F2937; --text-muted: #6B7280; --text-inverse: #FFFFFF;
+            --success: #2F9E44; --error: #D92D20;
+            --radius: 16px; --radius-pill: 9999px;
+            --shadow: 0 4px 14px rgba(17,24,39,0.08);
+            --transition: 180ms ease;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Inter", "Nunito", sans-serif; background-color: var(--bg); color: var(--text); padding-top: 100px; }
+
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; height: 75px; background: var(--surface);
+            border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px; z-index: 1000; box-shadow: var(--shadow);
+        }
+        .nav-logo { font-weight: 800; color: var(--secondary-700); font-size: 24px; cursor: pointer; }
+
+        .container { width: 95%; max-width: 850px; margin: 0 auto; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
+
+        button { cursor: pointer; font-weight: 600; border-radius: var(--radius-pill); border: none; padding: 14px 28px; transition: var(--transition); font-family: inherit; }
+        .btn-primary { background: var(--secondary-500); color: white; } 
+        .btn-primary:hover { filter: brightness(95%); transform: translateY(-1px); }
+        .btn-outline { background: transparent; border: 2px solid var(--secondary-300); color: var(--secondary-700); }
+        .btn-ghost { background: #eee; color: #666; padding: 8px 16px; font-size: 12px; }
+
+        .drop-zone { min-height: 80px; border: 2px dashed var(--secondary-300); border-radius: 12px; padding: 12px; display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; background: var(--surface-alt); transition: var(--transition); }
+        .word-pill { background: var(--surface); border: 1px solid var(--border); padding: 8px 16px; border-radius: var(--radius-pill); cursor: pointer; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.05); user-select: none; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .mcq-option { width: 100%; background: var(--surface-alt); padding: 18px; border-radius: 14px; border: 2px solid transparent; text-align: left; margin-bottom: 12px; cursor: pointer; font-weight: 600; transition: var(--transition); }
+        .mcq-option.selected { border-color: var(--secondary-500); background: #f0fdfa; }
+
+        .hidden { display: none !important; }
+        input[type="text"] { width: 100%; border: none; border-bottom: 3px solid var(--border); font-size: 22px; padding: 12px 0; background: transparent; color: var(--secondary-700); font-weight: 600; outline: none; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-logo" onclick="location.reload()"><i data-lucide="graduation-cap"></i> GrammarFlow</div>
+        <div id="live-score" style="font-weight: 800; color: var(--secondary-500); font-size: 18px;"></div>
+    </nav>
+
+    <div class="container">
+        <div id="view-landing">
+            <h1 style="margin-bottom: 30px;">Grammar Units</h1>
+            <div id="topic-grid" class="grid"></div>
+        </div>
+
+        <div id="view-setup" class="hidden">
+            <div class="card">
+                <h2 id="setup-title" style="margin-bottom: 20px;"></h2>
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight: 800; font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Task Types</label>
+                    <div style="display: flex; gap: 15px; margin-top: 10px;">
+                        <label><input type="checkbox" class="type-filter" value="mcq" checked> MCQ</label>
+                        <label><input type="checkbox" class="type-filter" value="prod" checked> Production</label>
+                        <label><input type="checkbox" class="type-filter" value="scramble" checked> Scramble</label>
+                    </div>
+                </div>
+                <div style="margin-bottom: 30px;">
+                    <label style="font-weight: 800; font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Session Length</label>
+                    <select id="item-count" style="width: 100%; padding: 12px; border-radius: 8px; margin-top: 8px;">
+                        <option value="10">Quick 10</option>
+                        <option value="30">Focused 30</option>
+                        <option value="120">Full Mastery (120)</option>
+                    </select>
+                </div>
+                <button class="btn-primary" style="width: 100%;" onclick="launchPractice()">Start Practice Session</button>
+            </div>
+        </div>
+
+        <div id="view-engine" class="hidden">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: 700; font-size: 13px;">
+                    <span id="mode-tag" style="color: var(--secondary-500)"></span>
+                    <span id="progress-tag"></span>
+                </div>
+                <h2 id="question-text" style="margin-bottom: 24px; line-height: 1.4;"></h2>
+                <div id="interaction-area"></div>
+                <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 20px;">
+                    <div id="feedback-msg"></div>
+                    <button id="action-btn" class="btn-primary">Check Answer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+
+    <script>
+        let state = {
+            activeUnitFile: null,
+            questions: [],
+            index: 0,
+            score: 0,
+            currentTask: null,
+            tempAns: null,
+            scrambleOrder: []
+        };
+
+        function init() {
+            lucide.createIcons();
+            if (typeof GRAMMAR_UNITS === 'undefined') return;
+            renderMenu();
+        }
+
+        function renderMenu() {
+            const grid = document.getElementById('topic-grid');
+            grid.innerHTML = GRAMMAR_UNITS.map(unit => `
+                <div class="card" style="padding: 24px;">
+                    <h3 style="margin-bottom: 15px; color: var(--primary-700);">${unit.title}</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-outline" style="flex:1" onclick="prepSession('${unit.file}', '${unit.title}', 'practice')">Practice</button>
+                        <button class="btn-primary" style="flex:1" onclick="prepSession('${unit.file}', '${unit.title}', 'test')">Test</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function prepSession(file, title, mode) {
+            state.activeUnitFile = file;
+            state.mode = mode;
+            if (mode === 'test') {
+                launchTest();
+            } else {
+                document.getElementById('setup-title').innerText = title;
+                showView('view-setup');
+            }
+        }
+
+        function loadUnit(file, callback) {
+            // Fix: Clear previous data to prevent overwriting issues
+            window.UNIT_DATA = undefined; 
+            const script = document.createElement('script');
+            script.src = file + "?v=" + Date.now(); // Cache-busting
+            script.onload = () => callback(window.UNIT_DATA);
+            document.head.appendChild(script);
+        }
+
+        function launchPractice() {
+            const count = parseInt(document.getElementById('item-count').value);
+            const selectedTypes = Array.from(document.querySelectorAll('.type-filter:checked')).map(cb => cb.value);
+            loadUnit(state.activeUnitFile, (data) => {
+                state.questions = data
+                    .filter(q => selectedTypes.includes(q.type))
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, count);
+                startSession();
+            });
+        }
+
+        function launchTest() {
+            loadUnit(state.activeUnitFile, (data) => {
+                state.questions = data.sort(() => Math.random() - 0.5);
+                startSession();
+            });
+        }
+
+        function startSession() {
+            state.index = 0;
+            state.score = 0;
+            updateScoreUI();
+            showView('view-engine');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = state.questions[state.index];
+            state.currentTask = q;
+            const area = document.getElementById('interaction-area');
+            const btn = document.getElementById('action-btn');
+            
+            document.getElementById('mode-tag').innerText = state.mode.toUpperCase();
+            document.getElementById('progress-tag').innerText = `${state.index + 1} / ${state.questions.length}`;
+            document.getElementById('question-text').innerText = q.q;
+            document.getElementById('feedback-msg').innerHTML = "";
+            
+            btn.innerText = "Check Answer";
+            btn.onclick = checkAnswer;
+
+            if (q.type === 'mcq') {
+                const shuffledOpts = [...q.options].sort(() => Math.random() - 0.5);
+                area.innerHTML = shuffledOpts.map(o => `<div class="mcq-option" onclick="selectMCQ(this, '${o}')">${o}</div>`).join('');
+            } else if (q.type === 'prod') {
+                area.innerHTML = `<input type="text" id="prod-input" placeholder="Type answer here..." autocomplete="off">`;
+                setTimeout(() => document.getElementById('prod-input').focus(), 100);
+            } else if (q.type === 'scramble') {
+                state.scrambleOrder = [];
+                const words = q.a.split(' ').sort(() => Math.random() - 0.5);
+                area.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <span style="font-size:12px; font-weight:700; color:var(--text-muted);">DRAG WORDS HERE:</span>
+                        <button class="btn-ghost" onclick="resetScramble()">Reset Box</button>
+                    </div>
+                    <div class="drop-zone" id="drop-zone"></div>
+                    <div id="word-pool" style="display:flex; gap:8px; flex-wrap:wrap;">
+                        ${words.map(w => `<div class="word-pill" onclick="handleScramble(this, '${w}')">${w}</div>`).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        function selectMCQ(el, val) {
+            document.querySelectorAll('.mcq-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            state.tempAns = val;
+        }
+
+        function handleScramble(el, word) {
+            const dropZone = document.getElementById('drop-zone');
+            const wordPool = document.getElementById('word-pool');
+            if (el.parentNode.id === 'word-pool') {
+                dropZone.appendChild(el);
+            } else {
+                wordPool.appendChild(el);
+            }
+            // Fix: Track order based on the DOM position
+            state.scrambleOrder = Array.from(dropZone.children).map(node => node.innerText.trim());
+        }
+
+        function resetScramble() {
+            const dropZone = document.getElementById('drop-zone');
+            const wordPool = document.getElementById('word-pool');
+            const pills = Array.from(dropZone.children);
+            pills.forEach(p => wordPool.appendChild(p));
+            state.scrambleOrder = [];
+        }
+
+        function checkAnswer() {
+            const q = state.currentTask;
+            let userAns = "";
+
+            if (q.type === 'mcq') userAns = state.tempAns || "";
+            else if (q.type === 'prod') userAns = document.getElementById('prod-input').value;
+            else if (q.type === 'scramble') userAns = state.scrambleOrder.join(' ');
+
+            // Fix: Clean formatting (case, spaces, punctuation) for fair checking
+            const clean = (s) => s.toLowerCase().trim().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s{2,}/g," ");
+            const isCorrect = clean(userAns) === clean(q.a);
+
+            if (isCorrect) state.score += q.pts;
+            updateScoreUI();
+
+            const msg = document.getElementById('feedback-msg');
+            msg.innerHTML = isCorrect ? 
+                `<span style="color:var(--success); font-weight:800;">✓ Correct (+${q.pts})</span>` : 
+                `<span style="color:var(--error); font-weight:800;">✘ Correction: ${q.a}</span>`;
+            
+            document.getElementById('action-btn').innerText = "Next Question";
+            document.getElementById('action-btn').onclick = () => {
+                state.index++;
+                if (state.index < state.questions.length) renderQuestion();
+                else {
+                    alert("Unit Complete! Final Score: " + state.score);
+                    location.reload();
+                }
+            };
+        }
+
+        function updateScoreUI() {
+            document.getElementById('live-score').innerText = `Score: ${state.score}`;
+        }
+
+        function showView(id) {
+            ['view-landing', 'view-setup', 'view-engine'].forEach(v => document.getElementById(v).classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
