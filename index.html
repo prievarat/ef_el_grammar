@@ -20,81 +20,127 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: "Inter", "Nunito", sans-serif; background-color: var(--bg); color: var(--text); padding-top: 100px; }
+        body { font-family: "Inter", "Nunito", sans-serif; background-color: var(--bg); color: var(--text); padding-top: 100px; padding-bottom: 50px; }
 
         nav {
             position: fixed; top: 0; left: 0; right: 0; height: 75px; background: var(--surface);
             border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;
             padding: 0 40px; z-index: 1000; box-shadow: var(--shadow);
         }
-        .nav-logo { font-weight: 800; color: var(--secondary-700); font-size: 24px; cursor: pointer; }
+        .nav-logo { font-weight: 800; color: var(--secondary-700); font-size: 24px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 
         .container { width: 95%; max-width: 850px; margin: 0 auto; }
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); transition: var(--transition); }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(17,24,39,0.06); }
 
-        button { cursor: pointer; font-weight: 600; border-radius: var(--radius-pill); border: none; padding: 14px 28px; transition: var(--transition); font-family: inherit; }
-        .btn-primary { background: var(--secondary-500); color: white; } 
-        .btn-primary:hover { filter: brightness(95%); transform: translateY(-1px); }
+        button { cursor: pointer; font-weight: 700; border-radius: var(--radius-pill); border: none; padding: 14px 28px; transition: var(--transition); font-family: inherit; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--secondary-500); color: white; box-shadow: 0 4px 6px rgba(43, 182, 180, 0.2); } 
+        .btn-primary:hover { filter: brightness(95%); transform: translateY(-1px); box-shadow: 0 6px 12px rgba(43, 182, 180, 0.3); }
+        .btn-primary:active { transform: translateY(0); }
+        
         .btn-outline { background: transparent; border: 2px solid var(--secondary-300); color: var(--secondary-700); }
-        .btn-ghost { background: #eee; color: #666; padding: 8px 16px; font-size: 12px; }
+        .btn-outline:hover { background: var(--secondary-300); color: white; }
 
-        .drop-zone { min-height: 80px; border: 2px dashed var(--secondary-300); border-radius: 12px; padding: 12px; display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; background: var(--surface-alt); transition: var(--transition); }
-        .word-pill { background: var(--surface); border: 1px solid var(--border); padding: 8px 16px; border-radius: var(--radius-pill); cursor: pointer; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.05); user-select: none; }
+        .btn-ghost { background: var(--surface-alt); color: var(--text-muted); padding: 8px 16px; font-size: 12px; }
+        .btn-ghost:hover { background: var(--border); }
+
+        .drop-zone { min-height: 80px; border: 2px dashed var(--secondary-300); border-radius: 12px; padding: 16px; display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; background: var(--surface-alt); transition: var(--transition); align-items: center; }
+        .word-pill { background: var(--surface); border: 1px solid var(--border); padding: 10px 18px; border-radius: var(--radius-pill); cursor: pointer; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.05); user-select: none; color: var(--secondary-700); transition: var(--transition); }
+        .word-pill:hover { border-color: var(--secondary-500); transform: scale(1.05); }
         
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .mcq-option { width: 100%; background: var(--surface-alt); padding: 18px; border-radius: 14px; border: 2px solid transparent; text-align: left; margin-bottom: 12px; cursor: pointer; font-weight: 600; transition: var(--transition); }
-        .mcq-option.selected { border-color: var(--secondary-500); background: #f0fdfa; }
+        
+        .mcq-option { width: 100%; background: var(--surface-alt); padding: 20px; border-radius: 14px; border: 2px solid transparent; text-align: left; margin-bottom: 12px; cursor: pointer; font-weight: 600; transition: var(--transition); display: flex; align-items: center; gap: 12px; }
+        .mcq-option:hover { border-color: var(--secondary-300); background: #fff; }
+        .mcq-option.selected { border-color: var(--secondary-500); background: #f0fdfa; color: var(--secondary-700); }
+        .mcq-option .circle { height: 20px; width: 20px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+        .mcq-option.selected .circle { border-color: var(--secondary-500); background: var(--secondary-500); }
+        .mcq-option.selected .circle::after { content: "✓"; color: white; font-size: 12px; font-weight: 900; }
 
         .hidden { display: none !important; }
-        input[type="text"] { width: 100%; border: none; border-bottom: 3px solid var(--border); font-size: 22px; padding: 12px 0; background: transparent; color: var(--secondary-700); font-weight: 600; outline: none; }
+        
+        /* Modern Input Styling */
+        input[type="text"] { width: 100%; border: none; border-bottom: 3px solid var(--border); font-size: 24px; padding: 16px 0; background: transparent; color: var(--secondary-700); font-weight: 700; outline: none; transition: var(--transition); }
+        input[type="text"]:focus { border-color: var(--secondary-500); }
+        input[type="text"]::placeholder { color: var(--border); font-weight: 400; }
+
+        /* Animation */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+
+        /* Feedback Styles */
+        .feedback-box { padding: 16px; border-radius: 12px; display: flex; align-items: center; gap: 12px; font-weight: 700; }
+        .feedback-success { background: #dcfce7; color: #166534; }
+        .feedback-error { background: #fee2e2; color: #991b1b; }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="nav-logo" onclick="location.reload()"><i data-lucide="graduation-cap"></i> GrammarFlow</div>
-        <div id="live-score" style="font-weight: 800; color: var(--secondary-500); font-size: 18px;"></div>
+        <div class="nav-logo" onclick="location.reload()">
+            <i data-lucide="graduation-cap" style="width: 28px; height: 28px;"></i> 
+            <span>GrammarFlow</span>
+        </div>
+        <div id="live-score" style="font-weight: 800; color: var(--secondary-700); font-size: 18px; background: var(--surface-alt); padding: 8px 16px; border-radius: var(--radius-pill);">
+            Score: 0
+        </div>
     </nav>
 
     <div class="container">
-        <div id="view-landing">
-            <h1 style="margin-bottom: 30px;">Grammar Units</h1>
+        <div id="view-landing" class="fade-in">
+            <h1 style="margin-bottom: 10px; font-size: 32px; color: var(--text);">Course Library</h1>
+            <p style="margin-bottom: 30px; color: var(--text-muted);">Select a unit to begin your mastery journey.</p>
             <div id="topic-grid" class="grid"></div>
         </div>
 
-        <div id="view-setup" class="hidden">
+        <div id="view-setup" class="hidden fade-in">
             <div class="card">
-                <h2 id="setup-title" style="margin-bottom: 20px;"></h2>
-                <div style="margin-bottom: 20px;">
-                    <label style="font-weight: 800; font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Task Types</label>
+                <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="showView('view-landing')">
+                    <i data-lucide="arrow-left" style="width: 18px;"></i> <span style="font-weight: 600; color: var(--text-muted);">Back to Library</span>
+                </div>
+                <h2 id="setup-title" style="margin-bottom: 20px; font-size: 28px;"></h2>
+                <div style="margin-bottom: 24px;">
+                    <label style="font-weight: 800; font-size: 12px; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; display: block;">Active Task Types</label>
                     <div style="display: flex; gap: 15px; margin-top: 10px;">
-                        <label><input type="checkbox" class="type-filter" value="mcq" checked> MCQ</label>
-                        <label><input type="checkbox" class="type-filter" value="prod" checked> Production</label>
-                        <label><input type="checkbox" class="type-filter" value="scramble" checked> Scramble</label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer;">
+                            <input type="checkbox" class="type-filter" value="mcq" checked> MCQ
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer;">
+                            <input type="checkbox" class="type-filter" value="prod" checked> Production
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer;">
+                            <input type="checkbox" class="type-filter" value="scramble" checked> Scramble
+                        </label>
                     </div>
                 </div>
                 <div style="margin-bottom: 30px;">
-                    <label style="font-weight: 800; font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Session Length</label>
-                    <select id="item-count" style="width: 100%; padding: 12px; border-radius: 8px; margin-top: 8px;">
-                        <option value="10">Quick 10</option>
-                        <option value="30">Focused 30</option>
-                        <option value="120">Full Mastery (120)</option>
+                    <label style="font-weight: 800; font-size: 12px; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; display: block;">Session Intensity</label>
+                    <select id="item-count" style="width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 12px; font-family: inherit; font-size: 16px; outline: none;">
+                        <option value="10">Quick Refresh (10 Items)</option>
+                        <option value="30">Deep Dive (30 Items)</option>
+                        <option value="120">Total Mastery (All Items)</option>
                     </select>
                 </div>
-                <button class="btn-primary" style="width: 100%;" onclick="launchPractice()">Start Practice Session</button>
+                <button class="btn-primary" style="width: 100%;" onclick="launchPractice()">
+                    Start Session <i data-lucide="play" style="width: 18px;"></i>
+                </button>
             </div>
         </div>
 
-        <div id="view-engine" class="hidden">
+        <div id="view-engine" class="hidden fade-in">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: 700; font-size: 13px;">
-                    <span id="mode-tag" style="color: var(--secondary-500)"></span>
-                    <span id="progress-tag"></span>
+                    <span id="mode-tag" style="color: var(--secondary-500); background: rgba(43, 182, 180, 0.1); padding: 4px 12px; border-radius: 6px;"></span>
+                    <span id="progress-tag" style="color: var(--text-muted);"></span>
                 </div>
-                <h2 id="question-text" style="margin-bottom: 24px; line-height: 1.4;"></h2>
+                
+                <h2 id="question-text" style="margin-bottom: 32px; line-height: 1.5; font-size: 22px;"></h2>
+                
                 <div id="interaction-area"></div>
-                <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 20px;">
-                    <div id="feedback-msg"></div>
+                
+                <div id="feedback-area" style="margin-top: 24px;"></div>
+
+                <div style="margin-top: 30px; display: flex; justify-content: flex-end; padding-top: 20px; border-top: 1px solid var(--border);">
                     <button id="action-btn" class="btn-primary">Check Answer</button>
                 </div>
             </div>
@@ -116,21 +162,26 @@
 
         function init() {
             lucide.createIcons();
-            if (typeof GRAMMAR_UNITS === 'undefined') return;
+            if (typeof GRAMMAR_UNITS === 'undefined') {
+                document.getElementById('topic-grid').innerHTML = "<p><i>Error: data.js not loaded.</i></p>";
+                return;
+            }
             renderMenu();
         }
 
         function renderMenu() {
             const grid = document.getElementById('topic-grid');
             grid.innerHTML = GRAMMAR_UNITS.map(unit => `
-                <div class="card" style="padding: 24px;">
-                    <h3 style="margin-bottom: 15px; color: var(--primary-700);">${unit.title}</h3>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn-outline" style="flex:1" onclick="prepSession('${unit.file}', '${unit.title}', 'practice')">Practice</button>
-                        <button class="btn-primary" style="flex:1" onclick="prepSession('${unit.file}', '${unit.title}', 'test')">Test</button>
+                <div class="card" style="padding: 24px; display: flex; flex-direction: column;">
+                    <h3 style="margin-bottom: 10px; color: var(--primary-700); font-size: 18px;">${unit.title}</h3>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Master this topic with interactive exercises.</p>
+                    <div style="display: flex; gap: 10px; margin-top: auto;">
+                        <button class="btn-outline" style="flex:1; padding: 10px;" onclick="prepSession('${unit.file}', '${unit.title}', 'practice')">Practice</button>
+                        <button class="btn-primary" style="flex:1; padding: 10px;" onclick="prepSession('${unit.file}', '${unit.title}', 'test')">Test</button>
                     </div>
                 </div>
             `).join('');
+            lucide.createIcons();
         }
 
         function prepSession(file, title, mode) {
@@ -145,10 +196,9 @@
         }
 
         function loadUnit(file, callback) {
-            // Fix: Clear previous data to prevent overwriting issues
             window.UNIT_DATA = undefined; 
             const script = document.createElement('script');
-            script.src = file + "?v=" + Date.now(); // Cache-busting
+            script.src = file + "?v=" + Date.now(); 
             script.onload = () => callback(window.UNIT_DATA);
             document.head.appendChild(script);
         }
@@ -187,33 +237,46 @@
             const btn = document.getElementById('action-btn');
             
             document.getElementById('mode-tag').innerText = state.mode.toUpperCase();
-            document.getElementById('progress-tag').innerText = `${state.index + 1} / ${state.questions.length}`;
+            document.getElementById('progress-tag').innerText = `Question ${state.index + 1} of ${state.questions.length}`;
             document.getElementById('question-text').innerText = q.q;
-            document.getElementById('feedback-msg').innerHTML = "";
+            document.getElementById('feedback-area').innerHTML = "";
             
+            // Reset button state
             btn.innerText = "Check Answer";
+            btn.className = "btn-primary";
             btn.onclick = checkAnswer;
+
+            area.innerHTML = ''; // Clear previous
 
             if (q.type === 'mcq') {
                 const shuffledOpts = [...q.options].sort(() => Math.random() - 0.5);
-                area.innerHTML = shuffledOpts.map(o => `<div class="mcq-option" onclick="selectMCQ(this, '${o}')">${o}</div>`).join('');
+                area.innerHTML = shuffledOpts.map(o => `
+                    <div class="mcq-option" onclick="selectMCQ(this, '${o.replace(/'/g, "&#39;")}')">
+                        <div class="circle"></div>
+                        <span>${o}</span>
+                    </div>
+                `).join('');
             } else if (q.type === 'prod') {
-                area.innerHTML = `<input type="text" id="prod-input" placeholder="Type answer here..." autocomplete="off">`;
+                area.innerHTML = `
+                    <input type="text" id="prod-input" placeholder="Type your answer..." autocomplete="off" onkeydown="if(event.key === 'Enter') checkAnswer()">
+                    <div style="margin-top: 8px; font-size: 12px; color: var(--text-muted);"> <i data-lucide="keyboard" style="width: 12px; display: inline;"></i> Press Enter to submit</div>
+                `;
                 setTimeout(() => document.getElementById('prod-input').focus(), 100);
             } else if (q.type === 'scramble') {
                 state.scrambleOrder = [];
                 const words = q.a.split(' ').sort(() => Math.random() - 0.5);
                 area.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <span style="font-size:12px; font-weight:700; color:var(--text-muted);">DRAG WORDS HERE:</span>
-                        <button class="btn-ghost" onclick="resetScramble()">Reset Box</button>
+                        <span style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Build Sentence:</span>
+                        <button class="btn-ghost" onclick="resetScramble()">Reset</button>
                     </div>
                     <div class="drop-zone" id="drop-zone"></div>
                     <div id="word-pool" style="display:flex; gap:8px; flex-wrap:wrap;">
-                        ${words.map(w => `<div class="word-pill" onclick="handleScramble(this, '${w}')">${w}</div>`).join('')}
+                        ${words.map(w => `<div class="word-pill" onclick="handleScramble(this)">${w}</div>`).join('')}
                     </div>
                 `;
             }
+            lucide.createIcons();
         }
 
         function selectMCQ(el, val) {
@@ -222,7 +285,7 @@
             state.tempAns = val;
         }
 
-        function handleScramble(el, word) {
+        function handleScramble(el) {
             const dropZone = document.getElementById('drop-zone');
             const wordPool = document.getElementById('word-pool');
             if (el.parentNode.id === 'word-pool') {
@@ -230,16 +293,61 @@
             } else {
                 wordPool.appendChild(el);
             }
-            // Fix: Track order based on the DOM position
-            state.scrambleOrder = Array.from(dropZone.children).map(node => node.innerText.trim());
+            lucide.createIcons();
         }
 
         function resetScramble() {
             const dropZone = document.getElementById('drop-zone');
             const wordPool = document.getElementById('word-pool');
-            const pills = Array.from(dropZone.children);
-            pills.forEach(p => wordPool.appendChild(p));
-            state.scrambleOrder = [];
+            Array.from(dropZone.children).forEach(p => wordPool.appendChild(p));
+        }
+
+        // --- INTELLIGENT MARKING LOGIC ---
+
+        // Helper: Expand contractions to standard forms for fair checking
+        function expandContractions(text) {
+            let s = text.toLowerCase();
+            // Common negatives
+            s = s.replace(/\b(can't|cannot)\b/g, "can not");
+            s = s.replace(/\b(won't)\b/g, "will not");
+            s = s.replace(/\b(shan't)\b/g, "shall not");
+            s = s.replace(/n't\b/g, " not");
+            // Common auxiliaries
+            s = s.replace(/'re\b/g, " are");
+            s = s.replace(/'m\b/g, " am");
+            s = s.replace(/'ll\b/g, " will");
+            s = s.replace(/'ve\b/g, " have");
+            // 's is ambiguous (is/has), but 'is' is safer for elementary grammar
+            s = s.replace(/'s\b/g, " is"); 
+            return s;
+        }
+
+        // Helper: Clean string for processing
+        function normalizeString(str) {
+            // Expand first, then strip punctuation, collapse spaces
+            let s = expandContractions(str);
+            s = s.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, ""); 
+            s = s.replace(/\s{2,}/g, " ");
+            return s.trim();
+        }
+
+        // Helper: Levenshtein Distance for fuzzy matching
+        function getEditDistance(a, b) {
+            if(a.length === 0) return b.length; 
+            if(b.length === 0) return a.length; 
+            const matrix = [];
+            for(let i = 0; i <= b.length; i++){ matrix[i] = [i]; }
+            for(let j = 0; j <= a.length; j++){ matrix[0][j] = j; }
+            for(let i = 1; i <= b.length; i++){
+                for(let j = 1; j <= a.length; j++){
+                    if(b.charAt(i-1) == a.charAt(j-1)){
+                        matrix[i][j] = matrix[i-1][j-1];
+                    } else {
+                        matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, Math.min(matrix[i][j-1] + 1, matrix[i-1][j] + 1));
+                    }
+                }
+            }
+            return matrix[b.length][a.length];
         }
 
         function checkAnswer() {
@@ -248,29 +356,93 @@
 
             if (q.type === 'mcq') userAns = state.tempAns || "";
             else if (q.type === 'prod') userAns = document.getElementById('prod-input').value;
-            else if (q.type === 'scramble') userAns = state.scrambleOrder.join(' ');
+            else if (q.type === 'scramble') {
+                const dropZone = document.getElementById('drop-zone');
+                userAns = Array.from(dropZone.children).map(node => node.innerText.trim()).join(' ');
+            }
 
-            // Fix: Clean formatting (case, spaces, punctuation) for fair checking
-            const clean = (s) => s.toLowerCase().trim().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s{2,}/g," ");
-            const isCorrect = clean(userAns) === clean(q.a);
+            // --- SCORING LOGIC ---
+            let isCorrect = false;
+
+            if (q.type === 'mcq' || q.type === 'scramble') {
+                // Strict check for these types is usually desired, but we normalize spaces/punctuation
+                isCorrect = normalizeString(userAns) === normalizeString(q.a);
+            } 
+            else if (q.type === 'prod') {
+                // INTELLIGENT MARKING FOR PRODUCTION
+                const normUser = normalizeString(userAns);
+                const normKey = normalizeString(q.a);
+
+                if (normUser === normKey) {
+                    isCorrect = true; // Exact match (expanded)
+                } else {
+                    // Fuzzy Match Logic:
+                    // 1. Calculate edit distance
+                    const dist = getEditDistance(normUser, normKey);
+                    // 2. Allow tolerance based on length (e.g., 1 error per 5 characters approx)
+                    // Short answers must be very accurate. Long answers allow typos.
+                    const tolerance = Math.max(0, Math.floor(normKey.length * 0.2)); 
+                    
+                    // 3. CRITICAL: Check if the 'verb structure' is broken?
+                    // Since we can't parse verbs easily, we rely on the fact that if the distance is small,
+                    // the structure is likely intact.
+                    // However, we strictly penalize very short answers if they don't match.
+                    if (normKey.length < 5) {
+                         isCorrect = (dist === 0);
+                    } else {
+                        isCorrect = (dist <= tolerance);
+                    }
+                }
+            }
 
             if (isCorrect) state.score += q.pts;
             updateScoreUI();
 
-            const msg = document.getElementById('feedback-msg');
-            msg.innerHTML = isCorrect ? 
-                `<span style="color:var(--success); font-weight:800;">✓ Correct (+${q.pts})</span>` : 
-                `<span style="color:var(--error); font-weight:800;">✘ Correction: ${q.a}</span>`;
+            const fbArea = document.getElementById('feedback-area');
+            if (isCorrect) {
+                fbArea.innerHTML = `
+                    <div class="feedback-box feedback-success fade-in">
+                        <i data-lucide="check-circle"></i>
+                        <span>Correct! Well done. (+${q.pts} pts)</span>
+                    </div>`;
+            } else {
+                fbArea.innerHTML = `
+                    <div class="feedback-box feedback-error fade-in">
+                        <i data-lucide="x-circle"></i>
+                        <div style="display:flex; flex-direction:column;">
+                            <span>Not quite.</span>
+                            <span style="font-weight:400; font-size:14px; margin-top:4px;">Answer: ${q.a}</span>
+                        </div>
+                    </div>`;
+            }
+            lucide.createIcons();
             
-            document.getElementById('action-btn').innerText = "Next Question";
-            document.getElementById('action-btn').onclick = () => {
-                state.index++;
-                if (state.index < state.questions.length) renderQuestion();
-                else {
-                    alert("Unit Complete! Final Score: " + state.score);
-                    location.reload();
-                }
-            };
+            const btn = document.getElementById('action-btn');
+            btn.innerText = "Next Question";
+            btn.className = "btn-outline";
+            btn.onclick = nextQuestion;
+        }
+
+        function nextQuestion() {
+            state.index++;
+            if (state.index < state.questions.length) {
+                renderQuestion();
+            } else {
+                finishSession();
+            }
+        }
+
+        function finishSession() {
+            document.getElementById('view-engine').innerHTML = `
+                <div class="card" style="text-align:center; padding: 60px;">
+                    <div style="font-size: 60px; margin-bottom: 20px;">🎉</div>
+                    <h2 style="font-size: 32px; margin-bottom: 10px;">Session Complete!</h2>
+                    <p style="font-size: 18px; color: var(--text-muted); margin-bottom: 30px;">
+                        Final Score: <strong style="color: var(--secondary-700);">${state.score}</strong>
+                    </p>
+                    <button class="btn-primary" onclick="location.reload()">Return to Menu</button>
+                </div>
+            `;
         }
 
         function updateScoreUI() {
@@ -278,8 +450,16 @@
         }
 
         function showView(id) {
-            ['view-landing', 'view-setup', 'view-engine'].forEach(v => document.getElementById(v).classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
+            ['view-landing', 'view-setup', 'view-engine'].forEach(v => {
+                const el = document.getElementById(v);
+                if (v === id) {
+                    el.classList.remove('hidden');
+                    el.classList.add('fade-in');
+                } else {
+                    el.classList.add('hidden');
+                    el.classList.remove('fade-in');
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', init);
