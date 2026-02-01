@@ -163,7 +163,7 @@
         function init() {
             lucide.createIcons();
             if (typeof GRAMMAR_UNITS === 'undefined') {
-                document.getElementById('topic-grid').innerHTML = "<p><i>Error: data.js not loaded.</i></p>";
+                document.getElementById('topic-grid').innerHTML = "<p><i>Error: data.js not loaded. Ensure data.js is in the same folder.</i></p>";
                 return;
             }
             renderMenu();
@@ -302,11 +302,21 @@
             Array.from(dropZone.children).forEach(p => wordPool.appendChild(p));
         }
 
-        // --- INTELLIGENT MARKING LOGIC ---
+        // --- INTELLIGENT MARKING LOGIC v2.0 (Quote-Proof) ---
 
-        // Helper: Expand contractions to standard forms for fair checking
+        // Helper: Sanitize Quotes (The Fixer)
+        // Converts smart quotes and other variations to standard straight quote
+        function sanitizeQuotes(str) {
+            if (!str) return "";
+            return str
+                .replace(/[\u2018\u2019]/g, "'") // Replace smart single quotes
+                .replace(/[\u201C\u201D]/g, '"') // Replace smart double quotes
+                .replace(/`/g, "'");             // Replace backticks just in case
+        }
+
+        // Helper: Expand contractions
         function expandContractions(text) {
-            let s = text.toLowerCase();
+            let s = sanitizeQuotes(text).toLowerCase();
             // Common negatives
             s = s.replace(/\b(can't|cannot)\b/g, "can not");
             s = s.replace(/\b(won't)\b/g, "will not");
@@ -317,21 +327,22 @@
             s = s.replace(/'m\b/g, " am");
             s = s.replace(/'ll\b/g, " will");
             s = s.replace(/'ve\b/g, " have");
-            // 's is ambiguous (is/has), but 'is' is safer for elementary grammar
             s = s.replace(/'s\b/g, " is"); 
             return s;
         }
 
         // Helper: Clean string for processing
         function normalizeString(str) {
-            // Expand first, then strip punctuation, collapse spaces
+            // 1. Expand (which also handles quote sanitization internally)
             let s = expandContractions(str);
+            // 2. Strip ALL punctuation (including now-standardized quotes)
             s = s.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, ""); 
+            // 3. Normalize spaces
             s = s.replace(/\s{2,}/g, " ");
             return s.trim();
         }
 
-        // Helper: Levenshtein Distance for fuzzy matching
+        // Helper: Levenshtein Distance
         function getEditDistance(a, b) {
             if(a.length === 0) return b.length; 
             if(b.length === 0) return a.length; 
@@ -365,28 +376,21 @@
             let isCorrect = false;
 
             if (q.type === 'mcq' || q.type === 'scramble') {
-                // Strict check for these types is usually desired, but we normalize spaces/punctuation
+                // Sanitize quotes even for simple checks
                 isCorrect = normalizeString(userAns) === normalizeString(q.a);
             } 
             else if (q.type === 'prod') {
-                // INTELLIGENT MARKING FOR PRODUCTION
                 const normUser = normalizeString(userAns);
                 const normKey = normalizeString(q.a);
 
                 if (normUser === normKey) {
-                    isCorrect = true; // Exact match (expanded)
+                    isCorrect = true; 
                 } else {
-                    // Fuzzy Match Logic:
-                    // 1. Calculate edit distance
+                    // Fuzzy Match
                     const dist = getEditDistance(normUser, normKey);
-                    // 2. Allow tolerance based on length (e.g., 1 error per 5 characters approx)
-                    // Short answers must be very accurate. Long answers allow typos.
+                    // Allow 20% tolerance, but ensure short words are strict
                     const tolerance = Math.max(0, Math.floor(normKey.length * 0.2)); 
                     
-                    // 3. CRITICAL: Check if the 'verb structure' is broken?
-                    // Since we can't parse verbs easily, we rely on the fact that if the distance is small,
-                    // the structure is likely intact.
-                    // However, we strictly penalize very short answers if they don't match.
                     if (normKey.length < 5) {
                          isCorrect = (dist === 0);
                     } else {
