@@ -302,27 +302,22 @@
             Array.from(dropZone.children).forEach(p => wordPool.appendChild(p));
         }
 
-        // --- INTELLIGENT MARKING LOGIC v2.0 (Quote-Proof) ---
+        // --- INTELLIGENT MARKING LOGIC v3.0 (Sub-string Search) ---
 
-        // Helper: Sanitize Quotes (The Fixer)
-        // Converts smart quotes and other variations to standard straight quote
         function sanitizeQuotes(str) {
             if (!str) return "";
             return str
-                .replace(/[\u2018\u2019]/g, "'") // Replace smart single quotes
-                .replace(/[\u201C\u201D]/g, '"') // Replace smart double quotes
-                .replace(/`/g, "'");             // Replace backticks just in case
+                .replace(/[\u2018\u2019]/g, "'") 
+                .replace(/[\u201C\u201D]/g, '"') 
+                .replace(/`/g, "'");             
         }
 
-        // Helper: Expand contractions
         function expandContractions(text) {
             let s = sanitizeQuotes(text).toLowerCase();
-            // Common negatives
             s = s.replace(/\b(can't|cannot)\b/g, "can not");
             s = s.replace(/\b(won't)\b/g, "will not");
             s = s.replace(/\b(shan't)\b/g, "shall not");
             s = s.replace(/n't\b/g, " not");
-            // Common auxiliaries
             s = s.replace(/'re\b/g, " are");
             s = s.replace(/'m\b/g, " am");
             s = s.replace(/'ll\b/g, " will");
@@ -331,18 +326,13 @@
             return s;
         }
 
-        // Helper: Clean string for processing
         function normalizeString(str) {
-            // 1. Expand (which also handles quote sanitization internally)
             let s = expandContractions(str);
-            // 2. Strip ALL punctuation (including now-standardized quotes)
             s = s.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, ""); 
-            // 3. Normalize spaces
             s = s.replace(/\s{2,}/g, " ");
             return s.trim();
         }
 
-        // Helper: Levenshtein Distance
         function getEditDistance(a, b) {
             if(a.length === 0) return b.length; 
             if(b.length === 0) return a.length; 
@@ -361,6 +351,43 @@
             return matrix[b.length][a.length];
         }
 
+        // NEW: Checks if the target key exists inside the user's sentence
+        function isPhrasePresent(userFull, key) {
+            const normUser = normalizeString(userFull);
+            const normKey = normalizeString(key);
+
+            // 1. Direct substring check (e.g. user wrote "look that man is trying", key "is trying")
+            if (normUser.includes(normKey)) return true;
+
+            // 2. Fuzzy Token Window Search
+            // Breaks user input into tokens and slides a window of the same size as the key
+            const userTokens = normUser.split(' ');
+            const keyTokens = normKey.split(' ');
+
+            if (userTokens.length < keyTokens.length) {
+                // User wrote less than the answer key? Just simple distance check
+                return getFuzzyMatch(normUser, normKey);
+            }
+
+            // Slide window
+            for (let i = 0; i <= userTokens.length - keyTokens.length; i++) {
+                // Create a sub-phrase from user input matching the key's word count
+                const subPhrase = userTokens.slice(i, i + keyTokens.length).join(' ');
+                
+                // check if this specific sub-phrase matches the key
+                if (getFuzzyMatch(subPhrase, normKey)) return true;
+            }
+
+            return false;
+        }
+
+        function getFuzzyMatch(val, key) {
+            const dist = getEditDistance(val, key);
+            const tolerance = Math.max(0, Math.floor(key.length * 0.2)); 
+            if (key.length < 5) return dist === 0; // Strict for short words
+            return dist <= tolerance;
+        }
+
         function checkAnswer() {
             const q = state.currentTask;
             let userAns = "";
@@ -372,31 +399,14 @@
                 userAns = Array.from(dropZone.children).map(node => node.innerText.trim()).join(' ');
             }
 
-            // --- SCORING LOGIC ---
             let isCorrect = false;
 
-            if (q.type === 'mcq' || q.type === 'scramble') {
-                // Sanitize quotes even for simple checks
+            if (q.type === 'prod') {
+                // Use the new "Search Engine" logic for Production
+                isCorrect = isPhrasePresent(userAns, q.a);
+            } else {
+                // Standard check for others
                 isCorrect = normalizeString(userAns) === normalizeString(q.a);
-            } 
-            else if (q.type === 'prod') {
-                const normUser = normalizeString(userAns);
-                const normKey = normalizeString(q.a);
-
-                if (normUser === normKey) {
-                    isCorrect = true; 
-                } else {
-                    // Fuzzy Match
-                    const dist = getEditDistance(normUser, normKey);
-                    // Allow 20% tolerance, but ensure short words are strict
-                    const tolerance = Math.max(0, Math.floor(normKey.length * 0.2)); 
-                    
-                    if (normKey.length < 5) {
-                         isCorrect = (dist === 0);
-                    } else {
-                        isCorrect = (dist <= tolerance);
-                    }
-                }
             }
 
             if (isCorrect) state.score += q.pts;
