@@ -54,7 +54,6 @@ var UNIT_DATA = [
     { type: 'mcq', q: 'He ___ a shower every single morning.', a: 'takes', options: ['takes', 'is taking', 'take', 'taking'], pts: 5 },
     { type: 'mcq', q: 'Where ___ they usually go on holiday?', a: 'do', options: ['do', 'are', 'does', 'is'], pts: 5 },
     { type: 'mcq', q: 'Look! The cat ___ the tree.', a: 'is climbing', options: ['is climbing', 'climbs', 'climb', 'climbing'], pts: 5 },
-    { type: 'mcq', q: 'I ___ very tired today.', a: 'feel', options: ['feel', 'am feeling', 'feels', 'feeling'], pts: 5 },
     { type: 'mcq', q: 'The coffee ___ delicious.', a: 'tastes', options: ['tastes', 'is tasting', 'taste', 'tasting'], pts: 5 },
     { type: 'mcq', q: 'We ___ for a new apartment at the moment.', a: 'are looking', options: ['are looking', 'look', 'looks', 'looking'], pts: 5 },
     { type: 'mcq', q: 'I ___ what you are talking about.', a: 'don’t see', options: ['don’t see', 'am not seeing', 'not see', 'doesn’t see'], pts: 5 },
@@ -108,5 +107,6 @@ var UNIT_DATA = [
     { type: 'scramble', q: 'Reorder the sentence:', a: 'Why is the baby crying now?', pts: 10 }
 
 ];
+
 
 
